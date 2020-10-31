@@ -1,0 +1,22 @@
+[
+    {
+        "model": "api.vulnerability",
+        "pk": 1,
+        "fields": {
+        "title": "virus",
+        "severity": "Alta",
+        "cvss": 9.5,
+        "pub_date": "2020-10-13"
+        }
+    },
+    {
+        "model": "api.vulnerability",
+        "pk": 2,
+        "fields": {
+            "title": "bug",
+            "severity": "Baixa",
+            "cvss": 9.5,
+            "pub_date": "2020-11-13"
+        }
+    }
+]

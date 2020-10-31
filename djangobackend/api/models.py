@@ -9,18 +9,22 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
 class Host(models.Model):
-    name = models.CharField(max_length=100, primary_key=True)
+    name = models.CharField(max_length=50, unique=True)
     
     # Considering only IPV4 addresses according to input file 
-    ip_address = models.CharField(validators=[validate_ipv4_address], blank=False, unique=True)  
+    ip_address = models.CharField(validators=[validate_ipv4_address], max_length=20, blank=False, unique=True)  
     
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower()
+        return super(Host, self).save(*args, **kwargs)
+
 class Vulnerability(models.Model):
     
     title = models.CharField(max_length=255, blank=False)
     severity = models.CharField(max_length=50, blank=False)
     cvss = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(10)], blank=False)
-    publication_date = models.DateField(blank=False)
-    host = models.ManyToManyField(Host)
+    pub_date = models.DateField(blank=False)
+    hosts = models.ManyToManyField(Host)
 
     def save(self, *args, **kwargs):
         self.severity = self.severity.lower()
