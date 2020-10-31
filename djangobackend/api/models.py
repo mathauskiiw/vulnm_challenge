@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, validate_ipv4_address
 from django.utils.translation import gettext_lazy as _
 from api.manager import CustomUserManager
 
@@ -10,20 +10,19 @@ class User(AbstractUser):
 
 class Host(models.Model):
     name = models.CharField(max_length=100, primary_key=True)
-    # IP address REGEX validator 
-    # ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$
-    ip_address = models.CharField(max_length=15, blank=False, unique=True)  
+    
+    # Considering only IPV4 addresses according to input file 
+    ip_address = models.CharField(validators=[validate_ipv4_address], blank=False, unique=True)  
     
 class Vulnerability(models.Model):
-    SEV_OPT= (
-        (1, 'Baixo'),
-        (2, 'Médio'),
-        (3, 'Alto'),
-        (4, 'Crítico')
-    )
-
+    
     title = models.CharField(max_length=255, blank=False)
-    severity = models.CharField(choices=SEV_OPT)
+    severity = models.CharField(max_length=50, blank=False)
     cvss = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(10)], blank=False)
     publication_date = models.DateField(blank=False)
     host = models.ManyToManyField(Host)
+
+    def save(self, *args, **kwargs):
+        self.severity = self.severity.lower()
+        return super(Vulnerability, self).save(*args, **kwargs)
+
