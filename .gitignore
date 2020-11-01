@@ -1,2 +1,3 @@
 __pycache__/
 djangobackend/api/management/commands/asset_vulnerability.csv
+.vscode/settings.json

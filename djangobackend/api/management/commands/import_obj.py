@@ -23,6 +23,20 @@ def read_csv(filepath='./api/management/commands/'):
 
         return result
 
+def normalize_data(arr):
+    for index, item in enumerate(arr):
+        if item == ['']:
+            arr.pop(index)
+        elif len(item) > 6:
+            for i in range(len(item) - 6):
+                item[2] += item[3]
+                item.pop(3)
+    
+    return arr
+
+        
+            
+
 class Command(BaseCommand):
     help = ""
 
@@ -35,7 +49,7 @@ class Command(BaseCommand):
         data = list(map(lambda x: x.split(','), data))
         # data order: hostname, ipv4, vuln, severity, cvss, pub_date
         
-        data = data[1:]
+        data = normalize_data(data)
         print(data)
 
         asset = None
