@@ -19,7 +19,7 @@ from rest_framework import routers
 from api import views
 
 router = routers.DefaultRouter()
-router.register(r'hosts', views.HostViewSet)
+router.register(r'assets', views.AssetViewSet)
 router.register(r'vulnerabilities', views.VulnerabilityViewSet)
 
 urlpatterns = [

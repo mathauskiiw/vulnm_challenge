@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import Host, Vulnerability
+from .models import Asset, Vulnerability
 
 
-class HostSerializer(serializers.HyperlinkedModelSerializer):
+class AssetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Host
-        fields = ['name', 'ip_address']
+        model = Asset
+        fields = ['hostname', 'ip_address']
 
 
 class VulnerabilitySerializer(serializers.HyperlinkedModelSerializer):
