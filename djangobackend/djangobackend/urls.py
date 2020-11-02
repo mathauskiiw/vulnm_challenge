@@ -21,6 +21,7 @@ from api import views
 router = routers.DefaultRouter()
 router.register(r'assets', views.AssetViewSet)
 router.register(r'vulnerabilities', views.VulnerabilityViewSet)
+router.register(r'vulnstatus', views.VulnStatusViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

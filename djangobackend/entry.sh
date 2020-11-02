@@ -14,12 +14,12 @@ fi
 
 # Make migrations and migrate the database.
 echo "Making migrations and migrating the database. "
-python manage.py reset_db --noinput
+# python manage.py reset_db --noinput
 python manage.py makemigrations api --noinput 
 python manage.py migrate --noinput 
 
 # Load vulnerability fixtures
-python manage.py import_obj
+# python manage.py import_obj
 
 echo "Collecting static files"
 python manage.py collectstatic --noinput

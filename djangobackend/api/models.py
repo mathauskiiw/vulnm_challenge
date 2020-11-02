@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator, validate_ipv4_address
 from django.utils.translation import gettext_lazy as _
-from api.manager import CustomUserManager
+from api.manager import CustomUserManager, AssetManager
 
 
 class CaseInsensitiveFieldMixin:
@@ -34,13 +34,29 @@ class Asset(models.Model):
     # Considering only IPV4 addresses according to input file 
     ip_address = models.CharField(validators=[validate_ipv4_address], max_length=20, blank=False, unique=True)  
     
+    # custom_query = AssetManager()
+
+    @property
+    def risk(self):
+        queryset = self.vulns.filter(vulnstatus__solved=False)
+        total = 0
+        
+        for i in queryset:
+            if i.cvss:
+                total += i.cvss
+
+        return total/len(queryset)
+
+    @property
+    def vuln_count(self):
+        return self.vulns.filter(vulnstatus__solved=False).count()
+
     def __str__(self):
         return self.hostname
 
     def save(self, *args, **kwargs):
         self.hostname = self.hostname.lower()
         return super(Asset, self).save(*args, **kwargs)
-
 
 class Vulnerability(models.Model):
 
@@ -49,8 +65,9 @@ class Vulnerability(models.Model):
     cvss = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(10)], null=True)
     pub_date = models.DateField(default=None, null=True)
-    hosts = models.ManyToManyField(Asset, through='VulnStatus')
-
+    hosts = models.ManyToManyField(Asset, through='VulnStatus', related_name='vulns')
+    
+    
     def __str__(self):
         return self.title
 
@@ -69,3 +86,7 @@ class VulnStatus(models.Model):
     class Meta:
         # restricts a vulnerability to exist only once per host, and vice-versa
         unique_together = ('asset', 'vulnerability')
+
+    def save(self, *args, **kwargs):
+        # add save logic
+        return super(VulnStatus, self).save(*args, **kwargs)
