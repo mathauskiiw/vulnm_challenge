@@ -1,8 +1,9 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator, validate_ipv4_address
 from django.utils.translation import gettext_lazy as _
-from api.manager import CustomUserManager, AssetManager
+from api.manager import CustomUserManager
 
 
 class CaseInsensitiveFieldMixin:
@@ -16,6 +17,7 @@ class CaseInsensitiveFieldMixin:
         'endswith': 'iendswith',
         'regex': 'iregex',
     }
+
     def get_lookup(self, lookup_name):
         converted = self.LOOKUP_CONVERSIONS.get(lookup_name, lookup_name)
         return super().get_lookup(converted)
@@ -28,19 +30,19 @@ class CICharField(CaseInsensitiveFieldMixin, models.CharField):
 class User(AbstractUser):
     objects = CustomUserManager()
 
+
 class Asset(models.Model):
     hostname = CICharField(max_length=50, blank=False, unique=True)
-     
-    # Considering only IPV4 addresses according to input file 
-    ip_address = models.CharField(validators=[validate_ipv4_address], max_length=20, blank=False, unique=True)  
-    
-    # custom_query = AssetManager()
+
+    # Considering only IPV4 addresses according to input file
+    ip_address = models.CharField(
+        validators=[validate_ipv4_address], max_length=20, blank=False, unique=True)
 
     @property
     def risk(self):
         queryset = self.vulns.filter(vulnstatus__solved=False)
         total = 0
-        
+
         for i in queryset:
             if i.cvss:
                 total += i.cvss
@@ -58,6 +60,7 @@ class Asset(models.Model):
         self.hostname = self.hostname.lower()
         return super(Asset, self).save(*args, **kwargs)
 
+
 class Vulnerability(models.Model):
 
     title = CICharField(max_length=255, unique=True, blank=False)
@@ -65,11 +68,15 @@ class Vulnerability(models.Model):
     cvss = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(10)], null=True)
     pub_date = models.DateField(default=None, null=True)
-    hosts = models.ManyToManyField(Asset, through='VulnStatus', related_name='vulns')
-    
-    
+    hosts = models.ManyToManyField(
+        Asset, through='VulnStatus', related_name='vulns')
+
     def __str__(self):
         return self.title
+
+    @property
+    def affected_count(self):
+        return self.hosts.filter(vulnstatus__solved=False).count()
 
     def save(self, *args, **kwargs):
         self.title = self.title.lower()

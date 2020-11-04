@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
-from api.models import Asset, Vulnerability, VulnStatus
+from api.models import Asset, Vulnerability, VulnStatus, User
 
 def read_csv(filepath='./api/management/commands/'):
         result = []
@@ -34,6 +34,12 @@ def normalize_data(arr):
     
     return arr
 
+def create_test_user():
+    """
+    creates a dummy user for testing purposes
+    """
+    User.objects.create_user(username='dummy', password1='testpassword1', password2='testpassword1')
+
         
             
 
@@ -43,6 +49,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         
         print("Import command is running")
+
+        create_test_user()
         # Array containing lines from file
         data = read_csv()
         # Splits each array on the comma
