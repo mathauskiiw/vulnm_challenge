@@ -3,7 +3,7 @@ from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
 from api.models import Asset, Vulnerability, VulnStatus, User
 from djangobackend.keyconfig import User as test_user
-from progress.bar import IncrementalBar
+
 
 def read_csv(filepath='./api/management/commands/'):
         result = []
@@ -26,6 +26,9 @@ def read_csv(filepath='./api/management/commands/'):
         return result
 
 def normalize_data(arr):
+    """
+    Fix possible input file format errors (extra commas, empty lines, etc)
+    """
     for index, item in enumerate(arr):
         if item == ['']:
             arr.pop(index)
@@ -40,10 +43,9 @@ def create_test_user():
     """
     creates a dummy user for testing purposes
     """
-    User.objects.create_user(username=test_user.USERNAME, password1=test_user.PASSWORD, password2=test_user.PASSWORD)
+    if not User.objects.get(username=test_user.USERNAME):
+        User.objects.create_user(username=test_user.USERNAME, password1=test_user.PASSWORD, password2=test_user.PASSWORD)
 
-        
-            
 
 class Command(BaseCommand):
     help = ""
@@ -93,7 +95,7 @@ class Command(BaseCommand):
             if created:
                 print("Created VulnStatus asset:{} vuln:{} ".format(sts.asset.hostname, sts.vulnerability.title))
             else:
-                print("FAILED - Relation already exists asset:{} vuln:{} ".format(asset.hostname, vuln.title))
+                print("FAILED - Relation already exists asset: {} vuln: {} ".format(asset.hostname, vuln.title))
 
         create_test_user()
 
