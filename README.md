@@ -34,9 +34,9 @@ This repository features a fully *containerized* environment consisting of the f
 * Place a .csv file into the *commands* folder  *(optional)*
  
 
-> $ cp ~/<assets.csv file path> ./djangobackend/api/management/commands/
+> $ cp ~/<assets*.csv file path> ./djangobackend/api/management/commands/
 
- * Install docker & docker-compose
+* Install docker & docker-compose
 
 2. Instalation & Docker
 * To run the application, simply run the docker-compose file from projects' root 

@@ -28,10 +28,12 @@ class CICharField(CaseInsensitiveFieldMixin, models.CharField):
 
 
 class User(AbstractUser):
+    # Overwrites default User model to require only username and password
     objects = CustomUserManager()
 
 
 class Asset(models.Model):
+    # Case Insensitive charfield
     hostname = CICharField(max_length=50, blank=False, unique=True)
 
     # Considering only IPV4 addresses according to input file
@@ -40,6 +42,7 @@ class Asset(models.Model):
 
     @property
     def risk(self):
+        # Dynamic property, simple mean of related vulnerabilities' risk
         queryset = self.vulns.filter(vulnstatus__solved=False)
         total = 0
 
@@ -51,14 +54,17 @@ class Asset(models.Model):
 
     @property
     def vuln_count(self):
+        # Count this asset's unsolved vulnerabilities
         return self.vulns.filter(vulnstatus__solved=False).count()
 
     @staticmethod
     def total_count():
+        # Count all assets
         return Asset.objects.all().count()
 
     @staticmethod
     def total_infected():
+        # Count all assets with at least 1 unsolved vulnerability
         count = 0
         for item in Asset.objects.all():
             if item.vuln_count > 1:
@@ -68,6 +74,7 @@ class Asset(models.Model):
 
     @staticmethod
     def risk_mean():
+        # Return the mean of all assets risk mean
         risk_mean_sum = 0
         count = 0
         for item in Asset.objects.all():
@@ -83,13 +90,15 @@ class Asset(models.Model):
                         key=lambda m: m.risk, reverse=True)
         # Extract the hostname field from the Asset instances
         asset_names = list(map(lambda x: x.hostname, assets))
-        
+
+        # Number of assets returned -> qty
         return asset_names[:qty]
 
     def __str__(self):
         return self.hostname
 
     def save(self, *args, **kwargs):
+        # Normalizes the data before saving
         self.hostname = self.hostname.lower()
         return super(Asset, self).save(*args, **kwargs)
 
@@ -109,9 +118,11 @@ class Vulnerability(models.Model):
 
     @property
     def affected_count(self):
+        # Number of hosts affected by this vulnerability
         return self.hosts.filter(vulnstatus__solved=False).count()
 
     def save(self, *args, **kwargs):
+        # Normalizes the data before saving
         self.title = self.title.lower()
         self.severity = self.severity.lower()
         return super(Vulnerability, self).save(*args, **kwargs)
@@ -133,7 +144,7 @@ class VulnStatus(models.Model):
 
     @staticmethod
     def vuln_count_severity(severity):
-        """
-        Counts how many vulnerabilities are unsolved by severity
-        """
-        return VulnStatus.objects.filter(solved=False, vulnerability__severity=severity).count()
+        # Counts how many vulnerabilities are unsolved by severity
+        count = VulnStatus.objects.filter(
+            solved=False, vulnerability__severity=severity).count()
+        return count

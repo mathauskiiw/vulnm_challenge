@@ -19,7 +19,7 @@ python manage.py makemigrations api --noinput
 python manage.py migrate --noinput 
 
 # Load vulnerability fixtures
-# python manage.py import_obj
+python manage.py import_obj
 
 echo "Collecting static files"
 python manage.py collectstatic --noinput

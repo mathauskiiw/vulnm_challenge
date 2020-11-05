@@ -10,3 +10,7 @@ class Database:
 
 class Secrets:
     SECRET_KEY = 'SuperSecretSecretKey'
+
+class User:
+    USERNAME = os.getenv('DJANGO_USER')
+    PASSWORD = os.getenv('DJANGO_PW')

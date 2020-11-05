@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from .models import Asset, Vulnerability, VulnStatus, User
 from .serializers import AssetSerializer, VulnerabilitySerializer, VulnStatusSerializer, UserSerializer, AssetDetailSerializer
 from rest_framework import viewsets, permissions
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView 
 from rest_framework.response import Response 
 from rest_framework import generics
@@ -73,7 +73,9 @@ class VulnStatusUpdateView(generics.UpdateAPIView):
         self.perform_update(serializer)
         return Response(serializer.data)
 
+
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def dashboard(request):
     data = {
         "hosts_card":{
