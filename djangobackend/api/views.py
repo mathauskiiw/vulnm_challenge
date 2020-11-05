@@ -73,6 +73,33 @@ class VulnStatusUpdateView(generics.UpdateAPIView):
         self.perform_update(serializer)
         return Response(serializer.data)
 
+@api_view(['GET'])
+def dashboard(request):
+    data = {
+        "hosts_card":{
+            "total": Asset.total_count(),
+            "vulnerable": Asset.total_infected(),
+        },
+        "vulnerabilities_card":{
+            "total": VulnStatus.objects.all().count(),
+            "unsolved": VulnStatus.objects.filter(solved=False).count()
+        },
+        "risk_mean": Asset.risk_mean(),
+        "vulnerability_distrib":{
+            "critical": VulnStatus.vuln_count_severity('crítico'),
+            "high": VulnStatus.vuln_count_severity('alto'),
+            "medium": VulnStatus.vuln_count_severity('médio'),
+            "low":  VulnStatus.vuln_count_severity('baixo'),
+            "total": VulnStatus.objects.all().filter(solved=False).count()
+        }
+    }
+
+    data["most_vulnerable"]= {}
+    for index, item in enumerate(Asset.top_risk(10), start=1):
+        data["most_vulnerable"][str(index)] = item
+
+    return Response(data=data)
+
         
 
 

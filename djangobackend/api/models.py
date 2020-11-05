@@ -53,6 +53,39 @@ class Asset(models.Model):
     def vuln_count(self):
         return self.vulns.filter(vulnstatus__solved=False).count()
 
+    @staticmethod
+    def total_count():
+        return Asset.objects.all().count()
+
+    @staticmethod
+    def total_infected():
+        count = 0
+        for item in Asset.objects.all():
+            if item.vuln_count > 1:
+                count += 1
+
+        return count
+
+    @staticmethod
+    def risk_mean():
+        risk_mean_sum = 0
+        count = 0
+        for item in Asset.objects.all():
+            risk_mean_sum += item.risk
+            count += 1
+
+        return risk_mean_sum/count
+
+    @staticmethod
+    def top_risk(qty):
+        # Get the asset object list sorted by risk
+        assets = sorted(Asset.objects.all(),
+                        key=lambda m: m.risk, reverse=True)
+        # Extract the hostname field from the Asset instances
+        asset_names = list(map(lambda x: x.hostname, assets))
+        
+        return asset_names[:qty]
+
     def __str__(self):
         return self.hostname
 
@@ -97,3 +130,10 @@ class VulnStatus(models.Model):
     def save(self, *args, **kwargs):
         # add save logic
         return super(VulnStatus, self).save(*args, **kwargs)
+
+    @staticmethod
+    def vuln_count_severity(severity):
+        """
+        Counts how many vulnerabilities are unsolved by severity
+        """
+        return VulnStatus.objects.filter(solved=False, vulnerability__severity=severity).count()

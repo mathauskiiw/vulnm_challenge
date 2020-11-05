@@ -28,4 +28,5 @@ urlpatterns = [
     path('auth/', include('rest_framework.urls', namespace='rest_framework')),
     re_path(r'^vulnerabilities/$', views.VulnerabilityListView.as_view()),
     re_path(r'^assets/(?P<asset_pk>\d+)/vuln/(?P<vuln_pk>\d+)$', views.VulnStatusUpdateView.as_view(), name='status-update'),
+    re_path(r'^dashboard/$', views.dashboard)
 ]
