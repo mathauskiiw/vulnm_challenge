@@ -78,7 +78,7 @@ django-extensions=3.0.9
 
   
 
-> $ docker-compose run --build
+> $ docker-compose up --build
 
   
 

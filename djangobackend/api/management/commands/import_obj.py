@@ -43,7 +43,7 @@ def create_test_user():
     """
     creates a dummy user for testing purposes
     """
-    if not User.objects.get(username=test_user.USERNAME):
+    if not User.objects.filter(username=test_user.USERNAME):
         User.objects.create_user(username=test_user.USERNAME, password1=test_user.PASSWORD, password2=test_user.PASSWORD)
 
 
